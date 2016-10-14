@@ -1,0 +1,138 @@
+package com.capgemini.model; 
+2 
+ 
+3 public class Account { 
+4 	 
+5 	private int accountNumber; 
+6 	private int amount; 
+7 	public int getAccountNumber() { 
+8 		return accountNumber; 
+9 	} 
+10 	public void setAccountNumber(int accountNumber) { 
+11 		this.accountNumber = accountNumber; 
+12 	} 
+13 	public int getAmount() { 
+14 		return amount; 
+15 	} 
+16 	public void setAmount(int amount) { 
+17 		this.amount = amount; 
+18 	} 
+19 	 
+20 	 
+21 } 
+
+===============================================================
+import com.capgemini.model.Account; 
+4 
+ 
+5 public interface AccountRepository { 
+6 	 
+7 	boolean save(Account account); 
+8 	 
+9 	Account searchAccount(int acccountNumber); 
+10 
+ 
+11 } 
+=========================================
+public interface AccountService { 
+8 	 
+9 	Account createAccount(int accountNumber,int amount)throws InsufficientInitialBalanceException; 
+10 	 
+11 	int showBalance(int accountNumber) throws InvalidAccountNumberException; 
+12 
+ 
+13 } 
+======================================================
+
+import com.capgemini.repository.AccountRepository; 
+7 
+ 
+8 public class AccountServiceImpl implements AccountService { 
+9 
+ 
+10 	private AccountRepository accountRepository; 
+11 	 
+12 	public AccountServiceImpl(AccountRepository accountRepository) { 
+13 		this.accountRepository=accountRepository; 
+14 	} 
+15 	@Override 
+16 	public Account createAccount(int accountNumber, int amount) throws InsufficientInitialBalanceException { 
+17 		if(amount<500) 
+18 		{ 
+19 			throw new InsufficientInitialBalanceException(); 
+20 		} 
+21 		 
+22 		Account account = new Account(); 
+23 		 
+24 		account.setAccountNumber(accountNumber); 
+25 		account.setAmount(amount); 
+26 		 
+27 		if(accountRepository.save(account)) 
+28 		{ 
+29 			return account; 
+30 		} 
+31 		 
+32 		return null; 
+33 	} 
+34 
+ 
+35 	@Override 
+36 	public int showBalance(int accountNumber) throws InvalidAccountNumberException { 
+37 		// TODO Auto-generated method stub 
+38 		return 0; 
+39 	} 
+40 
+ 
+41 } 
+=====================================================================
+
+package com.capgemini.test; 
+2 
+ 
+3 import static org.junit.Assert.fail; 
+4 
+ 
+5 import org.junit.Before; 
+6 import org.junit.Test; 
+7 import org.mockito.Mock; 
+8 import org.mockito.MockitoAnnotations; 
+9 
+ 
+10 import com.capgemini.exceptions.InsufficientInitialBalanceException; 
+11 import com.capgemini.repository.AccountRepository; 
+12 import com.capgemini.service.AccountService; 
+13 import com.capgemini.service.AccountServiceImpl; 
+14 
+ 
+15 public class AccountTest { 
+16 
+ 
+17 	AccountService accountService; 
+18 	 
+19 	@Mock 
+20 	AccountRepository accountRepository; 
+21 	 
+22 	 
+23 	@Before 
+24 	public void setUp() throws Exception { 
+25 		 
+26 		MockitoAnnotations.initMocks(this); 
+27 		 
+28 		accountService = new AccountServiceImpl(accountRepository); 
+29 	} 
+30 
+ 
+31 	/* 
+32 	 * test cases for create account 
+33 	 * 1. when the amount is less than 500 system should throw exception 
+34 	 * 2. when the valid info is passed account should be created successfully 
+35 	 */ 
+36 	 
+37 	@Test(expected = com.capgemini.exceptions.InsufficientInitialBalanceException.class) 
+38 	public void whenTheAmountIsLessThan500SystemShouldThrowException() throws InsufficientInitialBalanceException 
+39 	{ 
+40 		accountService.createAccount(101, 400); 
+41 	} 
+42 
+ 
+43 } 
